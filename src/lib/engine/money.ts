@@ -65,12 +65,12 @@ export function chooseRoute(currency: Currency, amountUsd: number, localRail: bo
   const rate = RATE_PER_USD[currency];
   const local = LOCAL_FEE_USD[currency];
   if (localRail && local !== undefined) {
-    return { kind: "LOCAL", feeUsd: local, etaDays: "0–1 days", rateToUsd: rate };
+    return { kind: "LOCAL", feeUsd: local, etaDays: "0-1 days", rateToUsd: rate };
   }
   return {
     kind: "SWIFT",
     feeUsd: round2(SWIFT_FEE_USD + amountUsd * SWIFT_SPREAD),
-    etaDays: "1–3 days",
+    etaDays: "1-3 days",
     rateToUsd: rate,
   };
 }

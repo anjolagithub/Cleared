@@ -74,7 +74,7 @@ function Strip({ state, lineId, selected, onOpen }: { state: RunState; lineId: s
       <button
         onClick={onOpen}
         aria-label={`${s.shop}: ${st.word}. ${reasonOf(d)}`}
-        className={`group grid w-full grid-cols-1 overflow-hidden md:grid-cols-[4.25rem_minmax(0,1fr)] rounded-md border bg-panel text-left shadow-[0_1px_0_rgba(19,34,48,0.06),0_6px_14px_-12px_rgba(19,34,48,0.5)] transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[0_1px_0_rgba(19,34,48,0.06),0_14px_24px_-16px_rgba(19,34,48,0.55)] ${
+        className={`group grid w-full grid-cols-1 overflow-hidden md:grid-cols-[4.25rem_minmax(0,1fr)] rounded-lg border bg-panel text-left shadow-[0_1px_0_rgba(19,34,48,0.06),0_6px_14px_-12px_rgba(19,34,48,0.5)] transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[0_1px_0_rgba(19,34,48,0.06),0_14px_24px_-16px_rgba(19,34,48,0.55)] ${
           selected ? "border-tower" : "border-rule"
         } ${changed ? "strip-changed" : ""}`}
         style={{ ["--flash" as string]: OUTCOME_HEX[d.outcome] }}
@@ -104,8 +104,8 @@ function Strip({ state, lineId, selected, onOpen }: { state: RunState; lineId: s
 
           <span className="grid grid-cols-3 divide-rule-soft max-md:divide-x md:contents">
             <Cell label="Owed" value={fmt(d.owed, c)} />
-            <Cell label="Kept back" value={d.reserve > 0 && d.outcome !== "CLEAR" && d.outcome !== "BLOCK" ? fmt(d.reserve, c) : "–"} muted />
-            <Cell label="Sends now" value={d.sendable > 0 ? fmt(d.sendable, c) : "–"} strong />
+            <Cell label="Kept back" value={d.reserve > 0 && d.outcome !== "CLEAR" && d.outcome !== "BLOCK" ? fmt(d.reserve, c) : "None"} muted />
+            <Cell label="Sends now" value={d.sendable > 0 ? fmt(d.sendable, c) : "None"} strong />
           </span>
 
           <span className="flex min-w-0 flex-col justify-center border-rule-soft px-3.5 py-2.5 md:border-l">
@@ -158,7 +158,7 @@ export function StripBoard({ state, onOpen, selected }: { state: RunState; onOpe
               </span>
             </div>
             {ids.length === 0 ? (
-              <p className="rounded-md border border-dashed border-rule px-4 py-4 text-sm text-ink-3">Empty bay.</p>
+              <p className="rounded-lg border border-dashed border-rule px-4 py-4 text-sm text-ink-3">Empty bay.</p>
             ) : (
               <ul className="space-y-2">
                 {ids.map((id) => (

@@ -80,7 +80,7 @@ export function SellerDrawer({
                 {seller.name}, {seller.country}
               </p>
             </div>
-            <button ref={closeRef} onClick={onClose} className="rounded-md px-2 py-1 text-sm font-medium text-ink-2 hover:bg-rule-soft">
+            <button ref={closeRef} onClick={onClose} className="rounded-lg px-2 py-1 text-sm font-medium text-ink-2 hover:bg-rule-soft">
               Close
             </button>
           </div>
@@ -98,11 +98,11 @@ export function SellerDrawer({
             </div>
             <div>
               <dt className="text-xs text-ink-3">Kept back</dt>
-              <dd className="num font-semibold">{d.reserve > 0 ? fmt(d.reserve, c) : "–"}</dd>
+              <dd className="num font-semibold">{d.reserve > 0 ? fmt(d.reserve, c) : "None"}</dd>
             </div>
             <div>
               <dt className="text-xs text-ink-3">Sends now</dt>
-              <dd className="num font-semibold">{d.sendable > 0 ? fmt(d.sendable, c) : "–"}</dd>
+              <dd className="num font-semibold">{d.sendable > 0 ? fmt(d.sendable, c) : "None"}</dd>
             </div>
             <div>
               <dt className="text-xs text-ink-3">Route</dt>
@@ -214,7 +214,7 @@ export function SellerDrawer({
                         {o.status === "DELIVERED" && (
                           <button
                             onClick={() => dispatch({ type: "REFUND_FILED", orderId: o.id })}
-                            className="rounded-md px-2 py-1 text-xs font-medium text-tower hover:bg-rule-soft"
+                            className="rounded-lg px-2 py-1 text-xs font-medium text-tower hover:bg-rule-soft"
                           >
                             Buyer asks for refund
                           </button>

@@ -1,3 +1,4 @@
+import { ChartPieSlice, CheckCircle, PauseCircle, Prohibit } from "@phosphor-icons/react/dist/ssr";
 import type { Outcome } from "@/lib/engine/types";
 
 export const OUTCOME_STYLE: Record<Outcome, { fg: string; bg: string; bar: string; verb: string; word: string }> = {
@@ -25,37 +26,11 @@ export function DecisionMark({ outcome, size = "md" }: { outcome: Outcome; size?
   );
 }
 
-export function OutcomeGlyph({ outcome, className = "" }: { outcome: Outcome; className?: string }) {
-  const common = { width: 12, height: 12, viewBox: "0 0 12 12", className, "aria-hidden": true } as const;
-  switch (outcome) {
-    case "CLEAR":
-      return (
-        <svg {...common}>
-          <path d="M2 6.5l2.5 2.5L10 3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-    case "REDUCE":
-      return (
-        <svg {...common}>
-          <rect x="1.5" y="2" width="9" height="8" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="1.5" y="6" width="9" height="4" rx="1" fill="currentColor" />
-        </svg>
-      );
-    case "HOLD":
-      return (
-        <svg {...common}>
-          <rect x="2.5" y="2" width="2.5" height="8" rx="1" fill="currentColor" />
-          <rect x="7" y="2" width="2.5" height="8" rx="1" fill="currentColor" />
-        </svg>
-      );
-    case "BLOCK":
-      return (
-        <svg {...common}>
-          <circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M3 9L9 3" stroke="currentColor" strokeWidth="1.6" />
-        </svg>
-      );
-  }
+const GLYPH = { CLEAR: CheckCircle, REDUCE: ChartPieSlice, HOLD: PauseCircle, BLOCK: Prohibit } as const;
+
+export function OutcomeGlyph({ outcome, className = "h-3.5 w-3.5" }: { outcome: Outcome; className?: string }) {
+  const Icon = GLYPH[outcome];
+  return <Icon weight="bold" className={className} aria-hidden />;
 }
 
 export function Wordmark({ className = "" }: { className?: string }) {
@@ -100,21 +75,9 @@ export function Button({
       title={title}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${v} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${v} ${className}`}
     >
       {children}
     </button>
   );
-}
-
-export function CheckIcon({ status }: { status: "pass" | "fire" | "info"; outcome?: Outcome }) {
-  if (status === "pass")
-    return (
-      <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-clear-bg text-clear">
-        <OutcomeGlyph outcome="CLEAR" />
-      </span>
-    );
-  if (status === "info")
-    return <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-rule text-[10px] font-bold text-ink-2">i</span>;
-  return <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 rounded-full bg-current" />;
 }

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Schibsted Grotesk Variable", "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
 
   --color-paper: #edf1f5;
   --color-panel: #ffffff;
@@ -33,7 +33,6 @@
 html {
   background: var(--color-paper);
   color: var(--color-ink);
-  font-feature-settings: "tnum" 1, "ss01" 1;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -43,7 +42,7 @@ body {
 }
 
 .num {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums;
 }
 
 :focus-visible {
@@ -83,4 +82,13 @@ body {
   .drawer-in {
     animation: none !important;
   }
+}
+
+button:not(:disabled),
+a[href] {
+  cursor: pointer;
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px);
 }

@@ -58,18 +58,10 @@ export function RunConsole() {
     <div className="min-h-dvh bg-bay">
       {/* Control tower */}
       <header className="relative overflow-hidden bg-tower-deep text-white">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 88px), repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 88px)",
-          }}
-        />
         <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div className="flex items-center gap-4">
-              <Link href="/" aria-label="Cleared home" className="rounded-md bg-white/95 px-2 py-1">
+              <Link href="/" aria-label="Cleared home" className="rounded-lg bg-white/95 px-2 py-1">
                 <Wordmark />
               </Link>
               <div className="hidden sm:block">
@@ -88,11 +80,11 @@ export function RunConsole() {
                 {mode === "sandbox" ? "Airwallex sandbox" : "Simulated rail"}
               </span>
               {caps.airwallex && (
-                <button className="rounded-md px-2.5 py-1.5 font-medium text-white/80 hover:bg-white/10" onClick={() => switchMode(mode === "sandbox" ? "simulation" : "sandbox")}>
+                <button className="rounded-lg px-2.5 py-1.5 font-medium text-white/80 hover:bg-white/10" onClick={() => switchMode(mode === "sandbox" ? "simulation" : "sandbox")}>
                   Use {mode === "sandbox" ? "simulation" : "Airwallex sandbox"}
                 </button>
               )}
-              <button className="rounded-md px-2.5 py-1.5 font-medium text-white/80 hover:bg-white/10" onClick={reset}>
+              <button className="rounded-lg px-2.5 py-1.5 font-medium text-white/80 hover:bg-white/10" onClick={reset}>
                 Start over
               </button>
             </div>

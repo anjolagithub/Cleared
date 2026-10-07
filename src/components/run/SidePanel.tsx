@@ -81,7 +81,7 @@ export function SidePanel({
             role="tab"
             aria-selected={tab === t.key}
             onClick={() => setTab(t.key)}
-            className={`shrink-0 rounded-md px-2.5 py-1 text-sm font-medium ${
+            className={`shrink-0 rounded-lg px-2.5 py-1 text-sm font-medium ${
               tab === t.key ? "bg-ink text-white" : "text-ink-2 hover:bg-rule-soft"
             }`}
           >
@@ -286,7 +286,7 @@ function Inbox({
       >
         <label className="block text-xs font-medium text-ink-2">
           From
-          <select value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 w-full rounded-md border border-rule bg-panel px-2 py-1.5 text-sm text-ink">
+          <select value={from} onChange={(e) => setFrom(e.target.value)} className="mt-1 w-full rounded-lg border border-rule bg-panel px-2 py-1.5 text-sm text-ink">
             {sellers.map((s) => (
               <option key={s.id} value={s.email}>
                 {s.name} ({s.shop})
@@ -296,11 +296,11 @@ function Inbox({
         </label>
         <label className="block text-xs font-medium text-ink-2">
           Subject
-          <input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-1 w-full rounded-md border border-rule px-2 py-1.5 text-sm text-ink" />
+          <input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-1 w-full rounded-lg border border-rule px-2 py-1.5 text-sm text-ink" />
         </label>
         <label className="block text-xs font-medium text-ink-2">
           Message
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} className="mt-1 w-full rounded-md border border-rule px-2 py-1.5 text-sm text-ink" />
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} className="mt-1 w-full rounded-lg border border-rule px-2 py-1.5 text-sm text-ink" />
         </label>
         <Button type="submit" disabled={busy}>
           {busy ? "Reading…" : "Read message"}
