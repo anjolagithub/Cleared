@@ -9,7 +9,7 @@ anyone can read.
 
 Built for the Airwallex Agentic Banking Hackathon.
 
-- **Live demo:** https://cleared-pay.vercel.app
+- **Live demo:** deploy with one click: import this repo at vercel.com/new (no settings or keys needed)
 - **Product brief:** [docs/PRD.md](docs/PRD.md)
 - **User flows:** [docs/USER_FLOWS.md](docs/USER_FLOWS.md)
 - **Architecture:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
