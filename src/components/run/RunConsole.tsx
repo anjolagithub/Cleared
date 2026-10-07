@@ -2,27 +2,47 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import { Button, OUTCOME_STYLE, OutcomeGlyph, Wordmark } from "@/components/ui";
-import { summarize } from "@/lib/engine/evaluate";
+import { Wordmark } from "@/components/ui";
 import { fmtUsd } from "@/lib/engine/money";
-import { sendableLines } from "@/lib/engine/run";
-import type { Outcome } from "@/lib/engine/types";
+import { sendableLines, type RunState } from "@/lib/engine/run";
 import { useRun } from "@/lib/use-run";
 import { Ledger } from "./Ledger";
 import { SellerDrawer } from "./SellerDrawer";
 import { SidePanel } from "./SidePanel";
 import { StripBoard } from "./StripBoard";
 
-const ORDER: Outcome[] = ["CLEAR", "REDUCE", "HOLD", "BLOCK"];
+function runway(state: RunState) {
+  const seg = { clear: 0, reduceSend: 0, kept: 0, hold: 0, block: 0 };
+  for (const d of Object.values(state.decisions)) {
+    const rate = d.route.rateToUsd;
+    if (d.outcome === "CLEAR") seg.clear += d.sendableUsd;
+    else if (d.outcome === "REDUCE") {
+      seg.reduceSend += d.sendableUsd;
+      seg.kept += d.reserve / rate;
+    } else if (d.outcome === "HOLD") seg.hold += d.owed / rate;
+    else seg.block += d.owed / rate;
+  }
+  const total = seg.clear + seg.reduceSend + seg.kept + seg.hold + seg.block;
+  return { ...seg, total, moves: seg.clear + seg.reduceSend };
+}
+
+const SEGMENTS: Array<{ key: "clear" | "reduceSend" | "kept" | "hold" | "block"; label: string; color: string }> = [
+  { key: "clear", label: "Cleared", color: "#22a374" },
+  { key: "reduceSend", label: "Reduced, sending", color: "#7fcfae" },
+  { key: "kept", label: "Kept back", color: "#d88a26" },
+  { key: "hold", label: "Holding", color: "#5b8be0" },
+  { key: "block", label: "Blocked", color: "#e0594d" },
+];
 
 export function RunConsole() {
   const { state, dispatch, send, busy, mode, switchMode, caps, reset, readInbound } = useRun();
   const [open, setOpen] = useState<string | undefined>();
   const close = useCallback(() => setOpen(undefined), []);
-  const sum = summarize(state.decisions);
+  const r = runway(state);
   const ready = sendableLines(state);
   const readyUsd = ready.reduce((a, l) => a + state.decisions[l.id].sendableUsd, 0);
   const readyFees = ready.reduce((a, l) => a + state.decisions[l.id].route.feeUsd, 0);
+  const paidUsd = state.transfers.filter((t) => t.status === "PAID").reduce((a, t) => a + t.sourceUsd, 0);
   const paid = state.transfers.filter((t) => t.status === "PAID").length;
   const moving = state.transfers.filter((t) => t.status === "PROCESSING" || t.status === "SENT" || t.status === "UNKNOWN").length;
   const time = new Date(state.now).toLocaleString("en-GB", {
@@ -35,77 +55,114 @@ export function RunConsole() {
   });
 
   return (
-    <div className="min-h-dvh">
-      <header className="border-b border-rule bg-panel">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-4">
-            <Link href="/" aria-label="Cleared home">
-              <Wordmark />
-            </Link>
-            <span className="hidden h-5 w-px bg-rule sm:block" aria-hidden />
-            <div className="hidden sm:block">
-              <p className="text-sm font-semibold leading-tight">Kora Market</p>
-              <p className="text-xs text-ink-2">{state.label}</p>
+    <div className="min-h-dvh bg-bay">
+      {/* Control tower */}
+      <header className="relative overflow-hidden bg-tower-deep text-white">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 88px), repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 88px)",
+          }}
+        />
+        <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="flex items-center gap-4">
+              <Link href="/" aria-label="Cleared home" className="rounded-md bg-white/95 px-2 py-1">
+                <Wordmark />
+              </Link>
+              <div className="hidden sm:block">
+                <p className="text-sm font-semibold leading-tight">Kora Market</p>
+                <p className="text-xs text-white/60">{state.label}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="num hidden text-white/60 md:inline" suppressHydrationWarning>
+                {time} UTC
+              </span>
+              <span
+                className={`rounded-full px-2.5 py-1 text-xs font-semibold ${mode === "sandbox" ? "bg-[#22a374]/20 text-[#8fe3c0]" : "bg-white/10 text-white/80"}`}
+                title={mode === "sandbox" ? "Payouts go to the Airwallex sandbox" : "Payouts go to a local stand-in for the Airwallex sandbox"}
+              >
+                {mode === "sandbox" ? "Airwallex sandbox" : "Simulated rail"}
+              </span>
+              {caps.airwallex && (
+                <button className="rounded-md px-2.5 py-1.5 font-medium text-white/80 hover:bg-white/10" onClick={() => switchMode(mode === "sandbox" ? "simulation" : "sandbox")}>
+                  Use {mode === "sandbox" ? "simulation" : "Airwallex sandbox"}
+                </button>
+              )}
+              <button className="rounded-md px-2.5 py-1.5 font-medium text-white/80 hover:bg-white/10" onClick={reset}>
+                Start over
+              </button>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="num hidden text-ink-2 md:inline" suppressHydrationWarning>{time} UTC</span>
-            <span
-              className={`rounded-md px-2 py-1 text-xs font-semibold ${mode === "sandbox" ? "bg-clear-bg text-clear" : "bg-hold-bg text-hold"}`}
-              title={mode === "sandbox" ? "Payouts go to the Airwallex sandbox" : "Payouts go to a local stand-in for the Airwallex sandbox"}
-            >
-              {mode === "sandbox" ? "Airwallex sandbox" : "Simulated rail"}
-            </span>
-            {caps.airwallex && (
-              <Button variant="quiet" onClick={() => switchMode(mode === "sandbox" ? "simulation" : "sandbox")}>
-                Switch to {mode === "sandbox" ? "simulation" : "Airwallex sandbox"}
-              </Button>
-            )}
-            <Button variant="quiet" onClick={reset}>
-              Start over
-            </Button>
+
+          <div className="grid gap-6 pt-6 pb-7 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
+            <div>
+              <p className="text-sm text-white/60">Can move today</p>
+              <p className="num mt-1 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+                {fmtUsd(r.moves)}
+                <span className="ml-2 text-xl font-semibold tracking-normal text-white/50 sm:text-2xl">of {fmtUsd(r.total)} owed</span>
+              </p>
+
+              <div className="mt-5 flex h-4 w-full overflow-hidden rounded-full bg-white/10" role="img" aria-label="How the money owed is split by decision">
+                {SEGMENTS.map((s) => {
+                  const w = r.total ? (r[s.key] / r.total) * 100 : 0;
+                  return w > 0 ? (
+                    <span key={s.key} className="h-full transition-[width] duration-700 ease-out first:rounded-l-full last:rounded-r-full" style={{ width: `${w}%`, background: s.color }} />
+                  ) : null;
+                })}
+              </div>
+              <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm">
+                {SEGMENTS.map((s) => (
+                  <li key={s.key} className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} aria-hidden />
+                    <span className="text-white/70">{s.label}</span>
+                    <span className="num font-semibold">{fmtUsd(r[s.key])}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-xl bg-white/[0.07] p-4 ring-1 ring-white/10">
+              <dl className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt className="text-white/55">Wallet</dt>
+                  <dd className="num font-semibold">{fmtUsd(state.balanceUsd)}</dd>
+                </div>
+                <div>
+                  <dt className="text-white/55">Floor</dt>
+                  <dd className="num font-semibold">{fmtUsd(state.policy.balanceFloorUsd)}</dd>
+                </div>
+                <div>
+                  <dt className="text-white/55">Paid so far</dt>
+                  <dd className="num font-semibold">
+                    {fmtUsd(paidUsd)} <span className="font-normal text-white/55">({paid})</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-white/55">In flight</dt>
+                  <dd className="num font-semibold">{moving}</dd>
+                </div>
+              </dl>
+              <button
+                onClick={send}
+                disabled={busy || ready.length === 0}
+                className="mt-4 w-full rounded-lg bg-white px-4 py-3 text-base font-bold text-tower-deep transition-colors hover:bg-[#e6f4ee] disabled:cursor-not-allowed disabled:bg-white/15 disabled:text-white/50"
+              >
+                {busy ? "Sending…" : ready.length > 0 ? `Send ${ready.length} cleared payout${ready.length === 1 ? "" : "s"}` : moving > 0 ? "Payouts in flight" : "Nothing ready to send"}
+              </button>
+              <p className="num mt-2 text-center text-xs text-white/55">
+                {ready.length > 0 ? `${fmtUsd(readyUsd)} plus about ${fmtUsd(readyFees)} in fees` : "Held and blocked payouts never move."}
+              </p>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1400px] space-y-5 px-4 py-5 sm:px-6">
-        <section aria-label="Run summary" className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-rule bg-rule sm:grid-cols-4">
-            {ORDER.map((o) => {
-              const st = OUTCOME_STYLE[o];
-              const moves = o === "CLEAR" || o === "REDUCE";
-              return (
-                <div key={o} className="bg-panel px-4 py-3">
-                  <p className={`flex items-center gap-1.5 text-sm font-semibold ${st.fg}`}>
-                    <OutcomeGlyph outcome={o} />
-                    {st.word}
-                  </p>
-                  <p className="num mt-1 text-3xl font-bold tracking-tight">{sum[o].count}</p>
-                  <p className="num text-sm text-ink-2">{moves ? `${fmtUsd(sum[o].usd)} to send` : "Nothing moves"}</p>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex flex-col justify-between gap-3 rounded-lg border border-rule bg-panel px-4 py-3">
-            <div>
-              <p className="text-sm text-ink-2">Wallet {fmtUsd(state.balanceUsd)}, floor {fmtUsd(state.policy.balanceFloorUsd)}</p>
-              {ready.length > 0 ? (
-                <p className="num mt-1 text-sm">
-                  <span className="font-semibold">{ready.length} ready</span>, {fmtUsd(readyUsd)} plus about {fmtUsd(readyFees)} in fees
-                </p>
-              ) : (
-                <p className="mt-1 text-sm font-semibold">
-                  {moving > 0 ? `${moving} in flight, ${paid} paid` : paid > 0 ? `${paid} paid. Nothing else is ready.` : "Nothing is ready to send."}
-                </p>
-              )}
-            </div>
-            <Button onClick={send} disabled={busy || ready.length === 0} className="w-full py-2.5 text-base">
-              {busy ? "Sending…" : ready.length > 0 ? `Send ${ready.length} cleared payout${ready.length === 1 ? "" : "s"}` : "Send cleared payouts"}
-            </Button>
-          </div>
-        </section>
-
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <main className="mx-auto max-w-[1400px] space-y-8 px-4 py-7 sm:px-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_23rem]">
           <StripBoard state={state} onOpen={setOpen} selected={open} />
           <SidePanel state={state} dispatch={dispatch} readInbound={readInbound} onOpen={setOpen} modelLive={caps.model} />
         </div>
@@ -113,7 +170,10 @@ export function RunConsole() {
         <Ledger state={state} />
 
         <p className="pb-6 text-xs text-ink-3">
-          Kora Market and its sellers are fictional. {mode === "simulation" ? "Payments in this view go to a local stand-in that behaves like the Airwallex sandbox; no money moves." : "Payments go to the Airwallex sandbox; no real money moves."}
+          Kora Market and its sellers are fictional.{" "}
+          {mode === "simulation"
+            ? "Payments in this view go to a local stand-in that behaves like the Airwallex sandbox; no money moves."
+            : "Payments go to the Airwallex sandbox; no real money moves."}
         </p>
       </main>
 

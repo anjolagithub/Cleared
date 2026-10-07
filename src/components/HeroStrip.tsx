@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DecisionMark, OUTCOME_STYLE } from "@/components/ui";
+import { OUTCOME_STYLE, OutcomeGlyph } from "@/components/ui";
 import { fmt } from "@/lib/engine/money";
 import { initialState } from "@/lib/engine/run";
 
@@ -40,10 +40,21 @@ export function HeroStrip() {
   return (
     <figure className="relative overflow-hidden rounded-xl border border-rule bg-panel shadow-[0_24px_60px_-36px_rgba(19,34,48,0.5)]">
       <span
-        className={`absolute inset-y-0 left-0 w-[7px] transition-colors duration-500 ${done ? st.bar : "bg-rule"}`}
+        className={`absolute inset-y-0 left-0 flex w-16 flex-col items-center justify-center gap-1 text-white transition-colors duration-500 ${done ? st.bar : "bg-tower"}`}
         aria-hidden
-      />
-      <div className="border-b border-rule-soft py-4 pr-5 pl-7">
+      >
+        {done ? (
+          <>
+            <OutcomeGlyph outcome={d.outcome} className="h-4 w-4" />
+            <span className="text-[11px] font-bold">{st.word}</span>
+          </>
+        ) : (
+          <span className="text-[11px] font-semibold text-white/70">
+            {Math.min(shown + 1, checks.length)}/{checks.length}
+          </span>
+        )}
+      </span>
+      <div className="border-b border-rule-soft py-4 pr-5 pl-[5.25rem]">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-lg font-bold tracking-tight">{seller.shop}</p>
@@ -57,7 +68,7 @@ export function HeroStrip() {
           </div>
         </div>
       </div>
-      <ol className="py-2 pr-5 pl-7" aria-live="polite">
+      <ol className="py-2 pr-5 pl-[5.25rem]" aria-live="polite">
         {checks.map((ch, i) => {
           const visible = i < shown;
           const fired = ch.status === "fire";
@@ -72,7 +83,7 @@ export function HeroStrip() {
                 }`}
                 aria-hidden
               />
-              <span className={`w-40 shrink-0 font-medium ${fired && visible ? "text-reduce" : ""}`}>{ch.label}</span>
+              <span className={`w-44 shrink-0 font-medium ${fired && visible ? "text-reduce" : ""}`}>{ch.label}</span>
               <span className="hidden min-w-0 truncate text-ink-2 sm:block">
                 {visible ? (fired ? "Keep back the disputed order" : ch.status === "info" ? `Local EUR, ${d.route.etaDays}` : "Passed") : ""}
               </span>
@@ -81,12 +92,11 @@ export function HeroStrip() {
         })}
       </ol>
       <figcaption
-        className={`flex flex-wrap items-center justify-between gap-3 border-t border-rule-soft py-4 pr-5 pl-7 transition-opacity duration-500 ${
+        className={`flex flex-wrap items-center justify-between gap-3 border-t border-rule-soft py-4 pr-5 pl-[5.25rem] transition-opacity duration-500 ${
           done ? "opacity-100" : "opacity-0"
         }`}
       >
-        <DecisionMark outcome={d.outcome} size="lg" />
-        <p className="num text-sm">
+        <p className="num text-[15px]">
           Send <span className="font-bold">{fmt(d.sendable, c)}</span> now, keep <span className="font-bold">{fmt(d.reserve, c)}</span> until
           the dispute closes.
         </p>

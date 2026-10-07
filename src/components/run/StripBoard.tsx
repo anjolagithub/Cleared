@@ -1,18 +1,40 @@
 "use client";
 
-import { useState } from "react";
-import { DecisionMark, OUTCOME_HEX, OUTCOME_STYLE } from "@/components/ui";
-import { fmt } from "@/lib/engine/money";
+import { OUTCOME_HEX, OUTCOME_STYLE, OutcomeGlyph } from "@/components/ui";
+import { fmt, fmtUsd } from "@/lib/engine/money";
 import { lineTransfers, type RunState } from "@/lib/engine/run";
-import type { Outcome, Transfer } from "@/lib/engine/types";
+import type { Decision, Outcome, Seller, Transfer } from "@/lib/engine/types";
 
-const FILTERS: Array<{ key: Outcome | "ALL"; label: string }> = [
-  { key: "ALL", label: "All" },
-  { key: "CLEAR", label: "Clear" },
-  { key: "REDUCE", label: "Reduce" },
-  { key: "HOLD", label: "Hold" },
-  { key: "BLOCK", label: "Block" },
+const BAYS: Array<{ o: Outcome; title: string; note: string }> = [
+  { o: "CLEAR", title: "Cleared", note: "Goes in full" },
+  { o: "REDUCE", title: "Reduced", note: "Part goes, the rest is kept back" },
+  { o: "HOLD", title: "Holding", note: "Waits for a person or an event" },
+  { o: "BLOCK", title: "Blocked", note: "Will not be sent as it is" },
 ];
+
+const AVATAR_TONES = ["#1d3a57", "#5b3a8c", "#0f6a74", "#8a4b1f", "#3c5a1e", "#7a2945", "#2c4a8a"];
+
+export function SellerMark({ seller, size = 36 }: { seller: Seller; size?: number }) {
+  const initials = seller.name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("");
+  const tone = AVATAR_TONES[seller.id.length % AVATAR_TONES.length];
+  return (
+    <span className="relative inline-flex shrink-0" style={{ width: size, height: size }} aria-hidden>
+      <span
+        className="inline-flex h-full w-full items-center justify-center rounded-full text-[13px] font-bold text-white"
+        style={{ background: tone }}
+      >
+        {initials}
+      </span>
+      <span className="absolute -right-1 -bottom-1 rounded-[4px] border border-white bg-panel px-[3px] text-[9px] leading-[13px] font-bold text-ink">
+        {seller.countryCode}
+      </span>
+    </span>
+  );
+}
 
 export function transferLabel(t?: Transfer): { text: string; tone: string } | undefined {
   if (!t) return undefined;
@@ -20,111 +42,133 @@ export function transferLabel(t?: Transfer): { text: string; tone: string } | un
     case "PROCESSING":
       return { text: "Processing", tone: "text-ink-2" };
     case "SENT":
-      return { text: "Sent", tone: "text-hold" };
+      return { text: "On its way", tone: "text-hold" };
     case "PAID":
       return { text: "Paid", tone: "text-clear" };
     case "FAILED":
       return { text: "Returned by bank", tone: "text-block" };
     case "UNKNOWN":
-      return { text: "No response, checking", tone: "text-reduce" };
+      return { text: "No reply, checking", tone: "text-reduce" };
   }
 }
 
-export function StripBoard({ state, onOpen, selected }: { state: RunState; onOpen: (lineId: string) => void; selected?: string }) {
-  const [filter, setFilter] = useState<Outcome | "ALL">("ALL");
-  const counts = { ALL: state.lines.length, CLEAR: 0, REDUCE: 0, HOLD: 0, BLOCK: 0 } as Record<Outcome | "ALL", number>;
-  for (const d of Object.values(state.decisions)) counts[d.outcome] += 1;
-  const lines = state.lines.filter((l) => filter === "ALL" || state.decisions[l.id]?.outcome === filter);
+export function reasonOf(d: Decision): string {
+  if (d.outcome === "CLEAR") return "All checks passed";
+  const fired = d.checks.find((c) => c.status === "fire" && c.outcome === d.outcome);
+  return fired ? fired.detail : d.headline;
+}
+
+function Strip({ state, lineId, selected, onOpen }: { state: RunState; lineId: string; selected: boolean; onOpen: () => void }) {
+  const line = state.lines.find((l) => l.id === lineId)!;
+  const d = state.decisions[lineId];
+  const s = state.sellers[line.sellerId];
+  const c = s.currency;
+  const st = OUTCOME_STYLE[d.outcome];
+  const t = lineTransfers(state, lineId).at(-1);
+  const tl = transferLabel(t);
+  const changed = state.changed.includes(lineId);
+  const tag = line.kind === "RELEASE" ? "Reserve release" : line.id.endsWith("-2") ? "Duplicate row" : undefined;
 
   return (
-    <section aria-label="Payouts in this run" className="rounded-lg border border-rule bg-panel">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rule-soft px-4 py-3">
-        <h2 className="text-base font-semibold">Payouts</h2>
-        <div role="tablist" aria-label="Filter by decision" className="flex flex-wrap gap-1">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              role="tab"
-              aria-selected={filter === f.key}
-              onClick={() => setFilter(f.key)}
-              className={`rounded-md px-2.5 py-1 text-sm font-medium transition-colors ${
-                filter === f.key ? "bg-ink text-white" : "text-ink-2 hover:bg-rule-soft"
-              }`}
-            >
-              {f.label} <span className="num opacity-70">{counts[f.key]}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+    <li>
+      <button
+        onClick={onOpen}
+        aria-label={`${s.shop}: ${st.word}. ${reasonOf(d)}`}
+        className={`group grid w-full grid-cols-1 overflow-hidden md:grid-cols-[4.25rem_minmax(0,1fr)] rounded-md border bg-panel text-left shadow-[0_1px_0_rgba(19,34,48,0.06),0_6px_14px_-12px_rgba(19,34,48,0.5)] transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[0_1px_0_rgba(19,34,48,0.06),0_14px_24px_-16px_rgba(19,34,48,0.55)] ${
+          selected ? "border-tower" : "border-rule"
+        } ${changed ? "strip-changed" : ""}`}
+        style={{ ["--flash" as string]: OUTCOME_HEX[d.outcome] }}
+      >
+        {/* The strip holder: its colour is the decision. */}
+        <span className={`flex items-center gap-1.5 px-3.5 py-1 text-white md:flex-col md:justify-center md:gap-1 md:px-0 md:py-0 ${st.bar}`}>
+          <OutcomeGlyph outcome={d.outcome} className="h-3.5 w-3.5 md:h-4 md:w-4" />
+          <span className="text-[11px] font-bold">{st.word}</span>
+        </span>
 
-      <div className="hidden grid-cols-[minmax(0,2.2fr)_1fr_1fr_1fr_0.8fr_1.1fr] gap-4 border-b border-rule-soft px-4 py-2 pl-7 text-xs font-medium text-ink-3 lg:grid">
-        <span>Seller</span>
-        <span className="text-right">Owed</span>
-        <span className="text-right">Kept back</span>
-        <span className="text-right">Sends now</span>
-        <span>Route</span>
-        <span>Decision</span>
-      </div>
+        <span className="grid min-w-0 grid-cols-1 divide-y divide-rule-soft md:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,0.9fr))_minmax(0,1.5fr)] md:divide-y-0">
+          <span className="flex min-w-0 items-center gap-3 px-3.5 py-3">
+            <SellerMark seller={s} />
+            <span className="min-w-0">
+              <span className="block truncate font-semibold">{s.shop}</span>
+              <span className="flex items-center gap-2 text-[13px] text-ink-2">
+                {tag ? (
+                  <span className={`shrink-0 rounded px-1.5 text-[11px] font-semibold ${tag === "Duplicate row" ? "bg-block-bg text-block" : "bg-reduce-bg text-reduce"}`}>
+                    {tag}
+                  </span>
+                ) : (
+                  <span className="truncate">{s.country}</span>
+                )}
+              </span>
+            </span>
+          </span>
 
-      <ul className="divide-y divide-rule-soft">
-        {lines.map((line) => {
-          const d = state.decisions[line.id];
-          const seller = state.sellers[line.sellerId];
-          if (!d) return null;
-          const c = seller.currency;
-          const st = OUTCOME_STYLE[d.outcome];
-          const latest = lineTransfers(state, line.id).at(-1);
-          const tl = transferLabel(latest);
-          const changed = state.changed.includes(line.id);
-          return (
-            <li key={`${line.id}-${d.version}-${d.sendable}`}>
-              <button
-                onClick={() => onOpen(line.id)}
-                aria-label={`${seller.shop}: ${st.word}. ${d.headline}`}
-                className={`group relative grid w-full grid-cols-1 gap-2 py-3 pr-4 pl-7 text-left transition-colors hover:bg-wash lg:grid-cols-[minmax(0,2.2fr)_1fr_1fr_1fr_0.8fr_1.1fr] lg:items-center lg:gap-4 ${
-                  selected === line.id ? "bg-wash" : ""
-                } ${changed ? "strip-changed" : ""}`}
-                style={{ ["--flash" as string]: OUTCOME_HEX[d.outcome] }}
-              >
-                <span className={`absolute inset-y-0 left-0 w-[5px] ${st.bar}`} aria-hidden />
-                <span className="min-w-0">
-                  <span className="block truncate font-semibold">
-                    {seller.shop}
-                    {line.kind === "RELEASE" && <span className="ml-2 text-xs font-medium text-reduce">Reserve release</span>}
-                    {line.id.endsWith("-2") && <span className="ml-2 text-xs font-medium text-block">Duplicate row</span>}
-                  </span>
-                  <span className="block truncate text-sm text-ink-2">
-                    {seller.name}, {seller.country}
-                  </span>
-                </span>
-                <span className="num flex justify-between text-sm lg:block lg:text-right">
-                  <span className="text-ink-3 lg:hidden">Owed</span>
-                  {fmt(d.owed, c)}
-                </span>
-                <span className="num flex justify-between text-sm text-ink-2 lg:block lg:text-right">
-                  <span className="text-ink-3 lg:hidden">Kept back</span>
-                  {d.outcome === "REDUCE" || (d.outcome === "HOLD" && d.reserve > 0) ? fmt(d.reserve, c) : "–"}
-                </span>
-                <span className="num flex justify-between text-sm font-semibold lg:block lg:text-right">
-                  <span className="font-normal text-ink-3 lg:hidden">Sends now</span>
-                  {d.sendable > 0 ? fmt(d.sendable, c) : "–"}
-                </span>
-                <span className="hidden text-sm text-ink-2 lg:block">{d.route.kind === "LOCAL" ? `Local ${c}` : "SWIFT"}</span>
-                <span className="flex flex-wrap items-center gap-2">
-                  <DecisionMark outcome={d.outcome} size="sm" />
-                  {tl && <span className={`text-xs font-medium ${tl.tone}`}>{tl.text}</span>}
-                  {!tl && d.outcome !== "CLEAR" && (
-                    <span className="w-full truncate text-xs text-ink-2 lg:hidden">{d.headline}</span>
-                  )}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-        {lines.length === 0 && (
-          <li className="px-7 py-10 text-sm text-ink-2">No payouts with this decision right now.</li>
-        )}
-      </ul>
+          <span className="grid grid-cols-3 divide-rule-soft max-md:divide-x md:contents">
+            <Cell label="Owed" value={fmt(d.owed, c)} />
+            <Cell label="Kept back" value={d.reserve > 0 && d.outcome !== "CLEAR" && d.outcome !== "BLOCK" ? fmt(d.reserve, c) : "–"} muted />
+            <Cell label="Sends now" value={d.sendable > 0 ? fmt(d.sendable, c) : "–"} strong />
+          </span>
+
+          <span className="flex min-w-0 flex-col justify-center border-rule-soft px-3.5 py-2.5 md:border-l">
+            <span className={`line-clamp-2 text-[13px] leading-snug ${d.outcome === "CLEAR" ? "text-ink-2" : st.fg}`}>{reasonOf(d)}</span>
+            <span className="mt-0.5 flex items-center gap-2 text-[12px] text-ink-3">
+              <span>{d.route.kind === "LOCAL" ? `Local ${c}` : "SWIFT"}</span>
+              {tl && (
+                <>
+                  <span aria-hidden className="h-1 w-1 rounded-full bg-rule" />
+                  <span className={`font-semibold ${tl.tone}`}>{tl.text}</span>
+                </>
+              )}
+            </span>
+          </span>
+        </span>
+      </button>
+    </li>
+  );
+}
+
+function Cell({ label, value, strong, muted }: { label: string; value: string; strong?: boolean; muted?: boolean }) {
+  return (
+    <span className="flex min-w-0 flex-col justify-center border-rule-soft px-2.5 py-2 md:border-l md:px-3.5 md:py-2.5">
+      <span className="text-[11px] text-ink-3">{label}</span>
+      <span className={`num truncate text-[13px] md:text-[15px] ${strong ? "font-bold text-ink" : muted ? "text-ink-2" : "font-medium"}`}>{value}</span>
+    </span>
+  );
+}
+
+export function StripBoard({ state, onOpen, selected }: { state: RunState; onOpen: (lineId: string) => void; selected?: string }) {
+  return (
+    <section aria-label="Payout bays" className="space-y-6">
+      {BAYS.map((bay) => {
+        const ids = state.lines.filter((l) => state.decisions[l.id]?.outcome === bay.o).map((l) => l.id);
+        const st = OUTCOME_STYLE[bay.o];
+        const usd = ids.reduce((a, id) => {
+          const d = state.decisions[id];
+          return a + (bay.o === "CLEAR" || bay.o === "REDUCE" ? d.sendableUsd : d.owed / d.route.rateToUsd);
+        }, 0);
+        return (
+          <div key={bay.o}>
+            <div className="mb-2 flex items-end justify-between gap-3 px-1">
+              <h2 className="flex items-baseline gap-2">
+                <span className={`text-lg font-bold tracking-tight ${st.fg}`}>{bay.title}</span>
+                <span className="num rounded-full bg-panel px-2 text-sm font-semibold text-ink-2">{ids.length}</span>
+                <span className="hidden text-sm text-ink-3 sm:inline">{bay.note}</span>
+              </h2>
+              <span className="num text-sm font-semibold text-ink-2">
+                {fmtUsd(usd)} {bay.o === "CLEAR" || bay.o === "REDUCE" ? "moves" : "stays"}
+              </span>
+            </div>
+            {ids.length === 0 ? (
+              <p className="rounded-md border border-dashed border-rule px-4 py-4 text-sm text-ink-3">Empty bay.</p>
+            ) : (
+              <ul className="space-y-2">
+                {ids.map((id) => (
+                  <Strip key={id} state={state} lineId={id} selected={selected === id} onOpen={() => onOpen(id)} />
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      })}
     </section>
   );
 }

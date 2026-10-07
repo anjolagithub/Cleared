@@ -66,7 +66,7 @@ export function SidePanel({
     return d?.checks.some((c) => c.id === "autonomy" && c.status === "fire");
   });
   const tabs: Array<{ key: Tab; label: string; badge?: number }> = [
-    { key: "walkthrough", label: "Try it" },
+    { key: "walkthrough", label: "Payout day" },
     { key: "approvals", label: "Approvals", badge: pending.length },
     { key: "inbox", label: "Inbox", badge: state.inbound.length || undefined },
     { key: "sellers", label: "Sellers", badge: state.messages.length || undefined },
@@ -123,7 +123,7 @@ function Walkthrough({
   return (
     <div>
       <p className="pt-3 text-sm text-ink-2">
-        Real things that happen on payout day. Each one changes only the payouts it touches.
+        Things that really happen on a payout Friday. Each one re-checks only the payouts it touches, and you can watch the strips move.
       </p>
       <p className="mt-4 text-xs font-semibold text-ink-3">Before you send</p>
       <ol className="divide-y divide-rule-soft">
