@@ -1,6 +1,6 @@
 # Holdpoint: product requirements
 
-> **Pay sellers every day. Hold only what needs a person.**
+> **Hold only what's at risk. Send the rest now.**
 >
 > Holdpoint is a payout autopilot for marketplaces that pay sellers across
 > borders on Airwallex. Before any payout reaches the Airwallex Transfer API,
@@ -39,11 +39,13 @@ payouts once you have decided. **None of them decides whether a specific
 payout should go out right now, in full.** Today that decision is a
 spreadsheet and a tired operations analyst.
 
-**The cost is speed, not only losses.** Because a few payouts in every run
-are risky, a person reviews all of them, and the marketplace pays weekly or
-monthly instead of daily. Sellers wait, and less money moves. Holdpoint's job
-is to make it safe to send most payouts with no one reviewing them, so the
-marketplace can pay more often.
+**The big marketplaces built a fix; most can't.** eBay may hold payouts until
+delivery is confirmed, and after bank details change. Amazon holds funds from
+seller-shipped orders until 7 days after delivery. Etsy reserves part of each
+sale for some sellers. These rules are blunt (hold everything for a fixed
+time), and a mid-size cross-border marketplace has no team to build them, so
+it pays slowly (Jumia pays twice a month) or pays blind. Holdpoint holds only
+the part of each payout that is at risk, and sends the rest straight away.
 
 **Primary metric:** share of payouts sent with no human review, with zero
 double payments and zero payouts to unverified bank changes. In the demo

@@ -1,6 +1,8 @@
 # Holdpoint
 
-**Pay sellers every day. Hold only what needs a person.**
+**Hold only what's at risk. Send the rest now.**
+
+Amazon, eBay and Etsy built their own systems to decide which seller payouts are safe to send. Holdpoint gives every marketplace on Airwallex that system.
 
 Holdpoint is a payout autopilot for marketplaces that pay sellers across borders on Airwallex. It checks every seller payout before it reaches the Airwallex Transfers API, sends the safe ones on its own, and stops the rest with a reason anyone can read: **Clear**, **Reduce**, **Hold** or **Block**.
 
@@ -15,7 +17,7 @@ Built for the Airwallex Agentic Banking Hackathon.
 
 ## Why it matters
 
-Marketplaces want to pay sellers fast and often: sellers stay, list more and sell more, and more money moves. What stops them is risk. Every run has a few payouts that shouldn't go yet, so a person reviews **all** of them, and payouts slow to once a week.
+Marketplaces want to pay sellers fast: sellers stay, list more and sell more, and more money moves. What stops them is risk. The biggest marketplaces built their own hold rules for this: eBay may hold payouts until delivery is confirmed or after bank details change, Amazon holds seller-shipped order funds until 7 days after delivery, and Etsy reserves part of each sale for some sellers. Those rules are blunt, and most marketplaces have no team to build them, so they pay slowly or pay blind.
 
 Three things go wrong:
 

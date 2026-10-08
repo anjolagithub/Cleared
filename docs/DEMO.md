@@ -4,7 +4,7 @@
 
 | Time | Beat | What the viewer sees |
 |---|---|---|
-| 0:00 | The problem | "Marketplaces pay weekly because a person has to check every payout. A few are risky, so all of them wait." |
+| 0:00 | The problem | "Amazon and eBay built their own rules for which seller payouts are safe to send. Most marketplaces can't, so they pay slowly or pay blind." |
 | 0:20 | The run | The tower: **10 of 14 payouts go out with no one reviewing.** The other 4 wait at the line: a bank change (Brian), a large payout over the limit (Grace), an invalid account (Tom), a duplicate (Camille). Each has its reason. |
 | 0:55 | A refund lands | Ada's buyer asks for a refund. Only Ada is re-checked: Clear becomes Reduce, and the refund amount is kept back. |
 | 1:25 | The fake email | "Please pay my new account" from Chidi. The model reads it and quotes the sentence; Holdpoint holds Chidi. The bank details are untouched. |
@@ -13,6 +13,6 @@
 | 3:10 | Fix and retry | Ops corrects Arjun's name. Re-validated, retried with a new request ID, paid. |
 | 3:35 | Window closes | Tunde's return window closes; the reserve kept back is released through the same checks. |
 | 4:00 | The record | The decision record: every observation, decision and payment. Totals tie out. |
-| 4:30 | Close | "Pay sellers every day. Hold only what needs a person." |
+| 4:30 | Close | "Hold only what's at risk. Send the rest now." |
 
 **Contrast beat (once GRAMMYboy's controls are in):** run the same inputs through a naive batch payout. It pays Camille twice, pays Chidi's fraudster and pays out refundable money. Then the proof view: Holdpoint's totals tie out with zero duplicates and zero unverified bank changes.
