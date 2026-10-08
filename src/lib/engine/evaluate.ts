@@ -213,7 +213,7 @@ export function evaluateLine(
         label: "Approval limit",
         status: "fire",
         outcome: "HOLD",
-        detail: `${fmtUsd(sendableUsd)} is above the ${fmtUsd(policy.autonomousLimitUsd)} limit Cleared may send on its own.`,
+        detail: `${fmtUsd(sendableUsd)} is above the ${fmtUsd(policy.autonomousLimitUsd)} limit Holdpoint may send on its own.`,
       });
     }
   } else {

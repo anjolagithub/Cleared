@@ -144,3 +144,38 @@ describe("rail safety", () => {
     await expect(rail.createTransfer(input)).rejects.toThrow(/Duplicate request_id/);
   });
 });
+
+describe("invariants", () => {
+  const RANK = { CLEAR: 0, REDUCE: 1, HOLD: 2, BLOCK: 3 } as const;
+
+  it("the strictest check always decides the outcome", () => {
+    const s = fresh();
+    for (const d of Object.values(s.decisions)) {
+      const fired = d.checks.filter((c) => c.status === "fire" && c.outcome).map((c) => RANK[c.outcome!]);
+      const strictest = fired.length ? Math.max(...fired) : 0;
+      // REDUCE can be raised to HOLD when everything owed is at risk, never lowered.
+      expect(RANK[d.outcome]).toBeGreaterThanOrEqual(strictest);
+      if (strictest === RANK.BLOCK) expect(d.outcome).toBe("BLOCK");
+    }
+  });
+
+  it("totals tie out: owed = sent + kept back, and held or blocked lines send nothing", () => {
+    const s = fresh();
+    for (const d of Object.values(s.decisions)) {
+      if (d.outcome === "HOLD" || d.outcome === "BLOCK") {
+        expect(d.sendable).toBe(0);
+      } else {
+        expect(d.sendable + d.reserve).toBeCloseTo(d.owed, 2);
+      }
+    }
+    const sum = summarize(s.decisions);
+    expect(sum.CLEAR.count + sum.REDUCE.count + sum.HOLD.count + sum.BLOCK.count).toBe(s.lines.length);
+  });
+
+  it("sends most payouts with no one reviewing them", () => {
+    const s = fresh();
+    const auto = Object.values(s.decisions).filter((d) => d.outcome === "CLEAR" || d.outcome === "REDUCE").length;
+    expect(auto).toBe(10);
+    expect(s.lines.length).toBe(14);
+  });
+});

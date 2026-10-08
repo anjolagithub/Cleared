@@ -1,4 +1,4 @@
-// Core domain types for Cleared.
+// Core domain types for Holdpoint.
 // Rule: the model reads, the code decides, the rail moves the money.
 
 export type Currency = "USD" | "NGN" | "KES" | "GBP" | "EUR" | "INR" | "PHP" | "BRL";
@@ -150,7 +150,7 @@ export interface LedgerEntry {
   id: number;
   at: string;
   kind: LedgerKind;
-  actor: "Cleared" | "Model" | "Airwallex" | "Ops" | "Approver" | "Marketplace" | "Seller";
+  actor: "Holdpoint" | "Model" | "Airwallex" | "Ops" | "Approver" | "Marketplace" | "Seller";
   text: string;
   lineId?: string;
   sellerId?: string;

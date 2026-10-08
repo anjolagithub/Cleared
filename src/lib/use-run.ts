@@ -71,7 +71,7 @@ export function useRun() {
     const lines = sendableLines(s0);
     rawDispatch({
       type: "LOG",
-      entry: { kind: "execute", actor: "Cleared", text: `Sending ${lines.length} payouts that passed every check. Held and blocked payouts stay put.` },
+      entry: { kind: "execute", actor: "Holdpoint", text: `Sending ${lines.length} payouts that passed every check. Held and blocked payouts stay put.` },
     });
     await Promise.all(
       lines.map(async (line, i) => {
@@ -113,10 +113,10 @@ export function useRun() {
           upsert(base, rt, `Accepted ${fmt(d.sendable, seller.currency)} to ${seller.shop} as ${rt.id} (request ${requestId}).`);
         } catch (e) {
           if (e instanceof RailTimeout) {
-            upsert(base, { status: "UNKNOWN" }, `No response for ${seller.shop} (request ${requestId}). Outcome unknown, so Cleared will not retry yet.`);
+            upsert(base, { status: "UNKNOWN" }, `No response for ${seller.shop} (request ${requestId}). Outcome unknown, so Holdpoint will not retry yet.`);
             rawDispatch({
               type: "LOG",
-              entry: { kind: "reconcile", actor: "Cleared", lineId: line.id, sellerId: seller.id, text: `Looking up request ${requestId} on Airwallex before doing anything else.` },
+              entry: { kind: "reconcile", actor: "Holdpoint", lineId: line.id, sellerId: seller.id, text: `Looking up request ${requestId} on Airwallex before doing anything else.` },
             });
             const found = await rail.findByRequestId(requestId);
             if (found) {

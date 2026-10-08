@@ -1,4 +1,4 @@
-# Cleared: architecture
+# Holdpoint: architecture
 
 ```
  Seller emails ──► Reader (Claude or rules) ──► typed intent only

@@ -39,6 +39,9 @@ export function RunConsole() {
   const [open, setOpen] = useState<string | undefined>();
   const close = useCallback(() => setOpen(undefined), []);
   const r = runway(state);
+  const decisions = Object.values(state.decisions);
+  // The growth number: payouts Holdpoint can send on its own, with no one reviewing them.
+  const auto = decisions.filter((d) => d.outcome === "CLEAR" || d.outcome === "REDUCE").length;
   const ready = sendableLines(state);
   const readyUsd = ready.reduce((a, l) => a + state.decisions[l.id].sendableUsd, 0);
   const readyFees = ready.reduce((a, l) => a + state.decisions[l.id].route.feeUsd, 0);
@@ -61,7 +64,7 @@ export function RunConsole() {
         <div className="relative mx-auto max-w-[1400px] px-4 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div className="flex items-center gap-4">
-              <Link href="/" aria-label="Cleared home" className="rounded-lg bg-white/95 px-2 py-1">
+              <Link href="/" aria-label="Holdpoint home" className="rounded-lg bg-white/95 px-2 py-1">
                 <Wordmark />
               </Link>
               <div className="hidden sm:block">
@@ -92,11 +95,21 @@ export function RunConsole() {
 
           <div className="grid gap-6 pt-6 pb-7 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
             <div>
-              <p className="text-sm text-white/60">Can move today</p>
-              <p className="num mt-1 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
-                {fmtUsd(r.moves)}
-                <span className="ml-2 text-xl font-semibold tracking-normal text-white/50 sm:text-2xl">of {fmtUsd(r.total)} owed</span>
-              </p>
+              <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
+                <div>
+                  <p className="text-sm text-white/60">Can move today</p>
+                  <p className="num mt-1 text-4xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+                    {fmtUsd(r.moves)}
+                    <span className="ml-2 text-xl font-semibold tracking-normal text-white/50 sm:text-2xl">of {fmtUsd(r.total)} owed</span>
+                  </p>
+                </div>
+                <div className="border-l-2 border-[#22a374] pl-4">
+                  <p className="text-sm text-white/60">Go out with no one reviewing</p>
+                  <p className="num mt-1 text-2xl font-extrabold tracking-[-0.02em] sm:text-3xl">
+                    {auto} <span className="text-lg font-semibold text-white/50">of {decisions.length} payouts</span>
+                  </p>
+                </div>
+              </div>
 
               <div className="mt-5 flex h-4 w-full overflow-hidden rounded-full bg-white/10" role="img" aria-label="How the money owed is split by decision">
                 {SEGMENTS.map((s) => {

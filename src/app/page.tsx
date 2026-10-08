@@ -5,7 +5,7 @@ import { HeroStrip } from "@/components/HeroStrip";
 import { DecisionMark, OUTCOME_STYLE, OutcomeGlyph, Wordmark } from "@/components/ui";
 import type { Outcome } from "@/lib/engine/types";
 
-const REPO = "https://github.com/anjolagithub/cleared";
+const REPO = "https://github.com/anjolagithub/holdpoint";
 
 const CHECKS: Array<{ name: string; asks: string; leads?: Outcome }> = [
   { name: "Duplicate guard", leads: "BLOCK", asks: "Is any of this money already on its way, or listed twice in the export?" },
@@ -13,7 +13,7 @@ const CHECKS: Array<{ name: string; asks: string; leads?: Outcome }> = [
   { name: "Bank response", leads: "BLOCK", asks: "Did this bank return our last payment? Then nothing goes until a person fixes it." },
   { name: "Bank-change quarantine", leads: "HOLD", asks: "Did the details change recently, or did someone email asking to change them?" },
   { name: "Refund reserve", leads: "REDUCE", asks: "Which orders can still be returned or disputed, and how much should stay back?" },
-  { name: "Approval limit", leads: "HOLD", asks: "Is this bigger than Cleared is allowed to send on its own?" },
+  { name: "Approval limit", leads: "HOLD", asks: "Is this bigger than Holdpoint is allowed to send on its own?" },
   { name: "Funding", leads: "HOLD", asks: "Does the wallet stay above its floor after this payout?" },
   { name: "Route", asks: "Local transfer or SWIFT? The cheapest route the details support." },
 ];
@@ -67,13 +67,13 @@ export default function Home() {
         <section className="mx-auto grid max-w-6xl items-center gap-12 px-5 pt-12 pb-24 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:pt-20 lg:pb-28">
           <div>
             <p className="inline-flex rounded-full bg-white/10 px-3 py-1 text-sm text-white/80 ring-1 ring-white/15">
-              A pre-send gate for marketplace payouts on Airwallex
+              Payout autopilot for marketplaces on Airwallex
             </p>
             <h1 className="mt-6 text-[2.75rem] leading-[0.98] font-extrabold tracking-[-0.04em] text-balance sm:text-[4.25rem]">
-              Every payout cleared before it moves.
+              Pay sellers every day.
             </h1>
             <p className="mt-6 max-w-[32rem] text-lg leading-relaxed text-white/70">
-              Cleared checks every seller payout for open refunds, changed bank details and duplicates before Airwallex sends it.
+              Holdpoint checks every payout for open refunds, changed bank details and duplicates. The safe ones go through Airwallex on their own. Only the rest wait for a person.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link href="/run" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-tower-deep hover:bg-[#e6f4ee]">
@@ -174,7 +174,7 @@ export default function Home() {
             <div className="mt-10 overflow-hidden rounded-t-xl border border-b-0 border-rule shadow-[0_30px_80px_-40px_rgba(15,42,68,0.55)]">
               <Image
                 src="/run-preview.png"
-                alt="The Cleared payout run: money that can move today, split by decision, above bays of payout strips."
+                alt="The Holdpoint payout run: money that can move today, split by decision, above bays of payout strips."
                 width={1440}
                 height={900}
                 className="block h-auto w-full"
@@ -184,7 +184,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Where it sits: one flow, Cleared first. */}
+        {/* Where it sits: one flow, Holdpoint first. */}
         <section className="bg-panel">
           <div className="mx-auto max-w-6xl px-5 py-24 sm:px-8">
             <h2 className="max-w-3xl text-3xl font-bold tracking-tight text-balance sm:text-4xl">
@@ -193,7 +193,7 @@ export default function Home() {
             <ol className="mt-12 grid overflow-hidden rounded-xl border border-rule md:grid-cols-[1.3fr_1fr_1fr]">
               <li className="bg-tower-deep p-7 text-white">
                 <p className="text-sm text-white/60">Before the money moves</p>
-                <p className="mt-1 text-2xl font-bold">Cleared</p>
+                <p className="mt-1 text-2xl font-bold">Holdpoint</p>
                 <p className="mt-3 text-sm leading-relaxed text-white/75">
                   Reads seller emails, runs eight checks and decides what may go, how much, and by which route.
                 </p>
@@ -217,7 +217,7 @@ export default function Home() {
               </p>
               <p>
                 Nothing is paid twice.{" "}
-                <span className="text-ink-3">No reply from Airwallex means unknown, so Cleared looks the payment up first.</span>
+                <span className="text-ink-3">No reply from Airwallex means unknown, so Holdpoint looks the payment up first.</span>
               </p>
               <p>
                 Every decision is written down. <span className="text-ink-3">What was seen, what fired, who approved, what was sent.</span>

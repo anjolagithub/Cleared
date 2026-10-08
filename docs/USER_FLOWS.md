@@ -1,6 +1,6 @@
-# Cleared: user flows
+# Holdpoint: user flows
 
-Actors: **Ops** (payouts analyst), **Approver** (finance lead), **Cleared**
+Actors: **Ops** (payouts analyst), **Approver** (finance lead), **Holdpoint**
 (agent + policy engine), **Airwallex**, **Seller**.
 
 ---
@@ -9,13 +9,13 @@ Actors: **Ops** (payouts analyst), **Approver** (finance lead), **Cleared**
 
 ```
 Ops opens run "Week 41"
-  → Cleared loads sellers, orders, refunds, beneficiaries, balance
-  → Cleared runs checks C1–C8 for every seller
+  → Holdpoint loads sellers, orders, refunds, beneficiaries, balance
+  → Holdpoint runs checks C1–C8 for every seller
   → Run board shows: CLEAR n · REDUCE n · HOLD n · BLOCK n, total sendable
 Ops reviews any row → drawer shows each check, inputs, outcome
 Approver approves HOLDs that only need approval (C6)
 Ops presses "Send cleared payouts"
-  → Cleared creates one Airwallex transfer per payout (request_id = run:seller:period)
+  → Holdpoint creates one Airwallex transfer per payout (request_id = run:seller:period)
   → statuses update: PROCESSING → SENT → PAID
   → each seller gets a message
 Run summary: sent, held, blocked, reserve kept, fees, duplicates prevented
@@ -28,7 +28,7 @@ sent equals the sum of CLEAR plus the sendable part of REDUCE plus approved HOLD
 
 ```
 Event: buyer files refund on seller S order O
-  → Cleared marks only S as affected
+  → Holdpoint marks only S as affected
   → C5 recomputes reserve for S
   → decision moves (e.g. CLEAR → REDUCE) with diff shown
   → ledger: "Refund O filed, S re-evaluated, reserve +€X"
@@ -54,7 +54,7 @@ Ops confirms with seller out-of-band → marks "confirmed" or "rejected"
 Transfer for S → FAILED (BENEFICIARY_NAME_MISMATCH)
   → C3 fires: S → BLOCK "bank rejected account name"
   → no automatic retry
-Ops corrects the name → Cleared re-validates with Airwallex
+Ops corrects the name → Holdpoint re-validates with Airwallex
   → valid: S → CLEAR, new transfer with a NEW request_id (attempt 2)
 ```
 
@@ -63,7 +63,7 @@ Ops corrects the name → Cleared re-validates with Airwallex
 ```
 Create transfer for S → network timeout, no response
   → S → UNKNOWN (never "retry")
-  → Cleared looks up transfers by the SAME request_id
+  → Holdpoint looks up transfers by the SAME request_id
      → found: adopt that transfer, status continues, no new payment
      → not found: safe to re-send with the same request_id
        (Airwallex rejects a reused request_id within 7 days, so a

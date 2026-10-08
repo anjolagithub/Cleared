@@ -172,7 +172,7 @@ function Walkthrough({
         <Step
           n={4}
           title="The network drops a response"
-          body="Airwallex accepts Santos Weaves's payout, but the reply never reaches Cleared."
+          body="Airwallex accepts Santos Weaves's payout, but the reply never reaches Holdpoint."
           done={state.armed.timeout === "P-MARIA" || mariaT.length > 0}
         >
           <Button
@@ -189,7 +189,7 @@ function Walkthrough({
         <Step
           n={5}
           title="Fix the rejected bank details"
-          body="Ops corrects the name; Cleared re-validates and retries with a new request ID."
+          body="Ops corrects the name; Holdpoint re-validates and retries with a new request ID."
           done={arjunT.length > 1}
         >
           <Button variant="secondary" disabled={!state.sellers["s-arjun"].beneficiary.rejection} onClick={() => onOpen("P-ARJUN")}>
@@ -328,7 +328,7 @@ function Inbox({
 
 function SellerMessages({ state }: { state: RunState }) {
   if (state.messages.length === 0)
-    return <p className="py-6 text-sm text-ink-2">Sellers hear from Cleared when their payout changes or lands. Nothing sent yet.</p>;
+    return <p className="py-6 text-sm text-ink-2">Sellers hear from Holdpoint when their payout changes or lands. Nothing sent yet.</p>;
   return (
     <ul className="divide-y divide-rule-soft">
       {state.messages.map((m) => {

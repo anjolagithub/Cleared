@@ -3,9 +3,9 @@ import "@fontsource-variable/schibsted-grotesk";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Cleared: every payout cleared before it moves",
+  title: "Holdpoint: pay sellers every day, hold only what needs a person",
   description:
-    "Cleared checks every marketplace payout before it reaches Airwallex, then clears, reduces, holds or blocks it with a reason.",
+    "Holdpoint sends marketplace seller payouts through Airwallex on its own when they are safe, and holds or blocks the rest with a reason a person can act on.",
   icons: { icon: "/icon.svg" },
 };
 

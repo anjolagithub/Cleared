@@ -10,7 +10,7 @@ const NEXT: Record<RailTransfer["status"], RailTransfer["status"] | undefined> =
 
 /**
  * In-memory stand-in for the Airwallex sandbox. It behaves like the real rail
- * in the ways that matter to Cleared:
+ * in the ways that matter to Holdpoint:
  *  - a reused request ID is rejected as a duplicate (Airwallex: 7 days);
  *  - a request can be accepted while the response is lost (timeout);
  *  - transfers move PROCESSING → SENT → PAID, or FAILED with a reason.

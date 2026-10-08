@@ -36,12 +36,21 @@ export function OutcomeGlyph({ outcome, className = "h-3.5 w-3.5" }: { outcome: 
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2 font-bold tracking-tight text-ink ${className}`}>
+      {/* An airfield holding-position marking: two solid lines, two dashed. Aircraft wait here until the tower clears them. */}
       <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden>
-        <rect width="32" height="32" rx="7" fill="#1d3a57" />
-        <rect x="7" y="9" width="4" height="14" rx="1" fill="#17805a" />
-        <path d="M14 16.5l3.2 3.2L25 12" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <rect width="32" height="32" rx="7" fill="#0f2a44" />
+        <rect x="6" y="8.5" width="20" height="2.4" rx="1.2" fill="#f2c14e" />
+        <rect x="6" y="12.8" width="20" height="2.4" rx="1.2" fill="#f2c14e" />
+        <g fill="#f2c14e">
+          <rect x="6" y="17.6" width="5" height="2.4" rx="1.2" />
+          <rect x="13.5" y="17.6" width="5" height="2.4" rx="1.2" />
+          <rect x="21" y="17.6" width="5" height="2.4" rx="1.2" />
+          <rect x="6" y="21.9" width="5" height="2.4" rx="1.2" />
+          <rect x="13.5" y="21.9" width="5" height="2.4" rx="1.2" />
+          <rect x="21" y="21.9" width="5" height="2.4" rx="1.2" />
+        </g>
       </svg>
-      Cleared
+      Holdpoint
     </span>
   );
 }

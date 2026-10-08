@@ -1,6 +1,6 @@
 import type { Currency, RouteKind, TransferStatus } from "../engine/types";
 
-/** What Cleared asks the payout rail to do. Mirrors the Airwallex Transfers API. */
+/** What Holdpoint asks the payout rail to do. Mirrors the Airwallex Transfers API. */
 export interface CreateTransferInput {
   requestId: string;
   beneficiaryId: string;

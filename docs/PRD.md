@@ -1,15 +1,17 @@
-# Cleared: product requirements
+# Holdpoint: product requirements
 
-> **Every payout cleared before it moves.**
+> **Pay sellers every day. Hold only what needs a person.**
 >
-> Cleared is a pre-execution gate for marketplaces that pay sellers across
+> Holdpoint is a payout autopilot for marketplaces that pay sellers across
 > borders on Airwallex. Before any payout reaches the Airwallex Transfer API,
-> Cleared decides **CLEAR**, **REDUCE**, **HOLD** or **BLOCK**, and records why.
+> Holdpoint decides **CLEAR**, **REDUCE**, **HOLD** or **BLOCK**, and records why.
+> The safe majority goes out with nobody reviewing it; the rest waits at the
+> line with a reason.
 
 | | |
 |---|---|
 | Status | Hackathon build (Airwallex Agentic Banking Hackathon, Oct–Nov 2026) |
-| Owners | Anjola Adeyemi (product, Airwallex integration, policy engine, app); GRAMMYboy (allocation and route optimiser) |
+| Owners | Anjola Adeyemi (product, policy engine, Airwallex integration, app); GRAMMYboy (controls: dry run, halt-on-drift reconciliation, proof view; reserve and route optimiser) |
 | Design rule | The model reads. The code decides. Airwallex moves the money. |
 
 ---
@@ -38,6 +40,16 @@ payouts once you have decided. **None of them decides whether a specific
 payout should go out right now, in full.** Today that decision is a
 spreadsheet and a tired operations analyst.
 
+**The cost is speed, not only losses.** Because a few payouts in every run
+are risky, a person reviews all of them, and the marketplace pays weekly or
+monthly instead of daily. Sellers wait, and less money moves. Holdpoint's job
+is to make it safe to send most payouts with no one reviewing them, so the
+marketplace can pay more often.
+
+**Primary metric:** share of payouts sent with no human review, with zero
+double payments and zero payouts to unverified bank changes. In the demo
+run: 10 of 14.
+
 ## 2. Who it is for
 
 | Role | Need |
@@ -53,14 +65,15 @@ different rules.
 
 ## 3. Positioning against Airwallex's own stack
 
-| Airwallex already has | What it does | Where Cleared sits |
+| Airwallex already has | What it does | Where Holdpoint sits |
 |---|---|---|
-| Transfers API + `transfers/validate` | Checks a payout **can** be sent | Cleared decides whether it **should** be sent, and how much |
-| Batch transfers | Sends many payouts at once | Cleared decides what goes into the batch |
-| Expense Policy Agent | Reviews card spend and reimbursements | Cleared gates outbound payouts before they move |
-| Leapfin (acquired June 2026) | Accounting after money moves | Cleared works before money moves |
+| Transfers API + `transfers/validate` | Checks a payout **can** be sent | Holdpoint decides whether it **should** be sent, and how much |
+| Batch transfers | Sends many payouts at once | Holdpoint decides what goes into the batch |
+| Expense Policy Agent | Reviews card spend and reimbursements | Holdpoint gates outbound payouts before they move |
+| Leapfin (acquired June 2026) | Accounting after money moves | Holdpoint works before money moves |
+| Marketplace Settlement starter kit (kit 8) | Sets seller reserves, pays net, recomputes one reserve when risk changes | Reserves are one of Holdpoint's eight checks; the other seven decide whether a payout should move at all. Holdpoint needs no platform access |
 
-> **Before:** Cleared checks the payout. **During:** Airwallex moves it.
+> **Before:** Holdpoint checks the payout. **During:** Airwallex moves it.
 > **After:** Leapfin books it.
 
 ## 4. Goals and non-goals
@@ -182,7 +195,7 @@ Every decision produces a seller message, for example:
 | Airwallex adds this natively | Stay vertical: marketplace rules (returns, disputes, seller risk) are platform-specific |
 | Name verification only covers SEPA, UK and Vietnam | Use it where available; elsewhere rely on validation, history and quarantine |
 | NGN payouts may need compliance review in sandbox | Test early; demo with currencies that work |
-| Refund data lives in the marketplace, not Airwallex | Cleared ingests it; this is expected |
+| Refund data lives in the marketplace, not Airwallex | Holdpoint ingests it; this is expected |
 
 ## 13. Milestones
 

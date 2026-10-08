@@ -113,7 +113,7 @@ function reevaluate(s: RunState, reason: string, only?: string[]): RunState {
       const seller = s.sellers[line.sellerId];
       out = log(out, {
         kind: "decide",
-        actor: "Cleared",
+        actor: "Holdpoint",
         lineId: line.id,
         sellerId: line.sellerId,
         text:
@@ -127,7 +127,7 @@ function reevaluate(s: RunState, reason: string, only?: string[]): RunState {
   if (only) {
     out = log(out, {
       kind: "observe",
-      actor: "Cleared",
+      actor: "Holdpoint",
       text: `${reason} Re-checked ${only.length} of ${s.lines.length} payouts; ${changed.length} changed.`,
     });
   }
@@ -158,7 +158,7 @@ export function initialState(mode: RailMode): RunState {
   };
   s = log(s, {
     kind: "observe",
-    actor: "Cleared",
+    actor: "Holdpoint",
     text: `Loaded ${lines.length} payouts for ${sellers.length} sellers from the Kora order export, ${orders.length} orders, wallet ${fmtUsd(OPENING_BALANCE_USD)}.`,
   });
   s = { ...s, decisions: evaluateRun(ctxOf(s), {}) };
@@ -166,7 +166,7 @@ export function initialState(mode: RailMode): RunState {
   for (const d of Object.values(s.decisions)) counts[d.outcome] += 1;
   s = log(s, {
     kind: "decide",
-    actor: "Cleared",
+    actor: "Holdpoint",
     text: `Checked every payout before sending: ${counts.CLEAR} clear, ${counts.REDUCE} reduce, ${counts.HOLD} hold, ${counts.BLOCK} block.`,
   });
   return s;
@@ -234,7 +234,7 @@ export function reducer(s: RunState, a: Action): RunState {
       if (sent.length) {
         n = log(n, {
           kind: "decide",
-          actor: "Cleared",
+          actor: "Holdpoint",
           sellerId: seller.id,
           text: `${seller.shop} was already paid this week. ${fmt(o.amount, seller.currency)} will be held from their next payout instead of clawing it back.`,
         });
@@ -270,7 +270,7 @@ export function reducer(s: RunState, a: Action): RunState {
         }));
         n = log(n, {
           kind: "decide",
-          actor: "Cleared",
+          actor: "Holdpoint",
           sellerId: seller.id,
           text: `Bank details for ${seller.shop} were not changed. The request is quarantined until the seller confirms on their registered contact.`,
         });
@@ -368,7 +368,7 @@ export function reducer(s: RunState, a: Action): RunState {
           n = { ...n, lines: [...n.lines, rl] };
           n = log(n, {
             kind: "decide",
-            actor: "Cleared",
+            actor: "Holdpoint",
             sellerId: a.sellerId,
             text: `Releasing ${fmt(release, seller.currency)} held back from ${seller.shop}'s payout.`,
           });

@@ -157,7 +157,7 @@ export function SellerDrawer({
                 <div className="space-y-2">
                   <p className="text-sm font-semibold">Bank details need fixing</p>
                   <p className="text-sm text-ink-2">
-                    {b.rejection ? `The bank said: ${b.rejection.reason}.` : b.validationNote} Cleared never edits bank details itself.
+                    {b.rejection ? `The bank said: ${b.rejection.reason}.` : b.validationNote} Holdpoint never edits bank details itself.
                   </p>
                   <Button variant="secondary" onClick={() => dispatch({ type: "BENEFICIARY_CORRECTED", sellerId: seller.id })}>
                     Mark details corrected and re-validate
@@ -269,7 +269,7 @@ export function SellerDrawer({
               What {seller.name.split(" ")[0]} has been told
             </h3>
             {messages.length === 0 ? (
-              <p className="mt-1 text-sm text-ink-2">No messages yet. Sellers hear from Cleared when their payout changes or is paid.</p>
+              <p className="mt-1 text-sm text-ink-2">No messages yet. Sellers hear from Holdpoint when their payout changes or is paid.</p>
             ) : (
               <ul className="mt-2 space-y-2">
                 {messages.map((m) => (

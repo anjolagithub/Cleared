@@ -153,7 +153,7 @@ export function buildSeed(): { sellers: Seller[]; orders: Order[]; lines: Payout
     });
     lines.push({ id: `P-${s.id.slice(2).toUpperCase()}`, sellerId: s.id, kind: "WEEKLY", orderIds, source: "Kora order export" });
   }
-  // The weekly export contains Camille twice (a known export bug). Cleared must not pay twice.
+  // The weekly export contains Camille twice (a known export bug). Holdpoint must not pay twice.
   const camille = lines.find((l) => l.sellerId === "s-camille")!;
   lines.push({ ...camille, id: "P-CAMILLE-2", source: "Kora order export (row 41)" });
   return { sellers, orders, lines };
