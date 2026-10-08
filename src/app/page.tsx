@@ -70,10 +70,10 @@ export default function Home() {
               Payout autopilot for marketplaces on Airwallex
             </p>
             <h1 className="mt-6 text-[2.75rem] leading-[0.98] font-extrabold tracking-[-0.04em] text-balance sm:text-[4.25rem]">
-              Pay sellers every day.
+              Hold only what’s at risk.
             </h1>
             <p className="mt-6 max-w-[32rem] text-lg leading-relaxed text-white/70">
-              Holdpoint checks every payout for open refunds, changed bank details and duplicates. The safe ones go through Airwallex on their own. Only the rest wait for a person.
+              Amazon and eBay built their own rules for which seller payouts are safe to send. Holdpoint gives every marketplace on Airwallex that system, and sends the rest straight away.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link href="/run" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-tower-deep hover:bg-[#e6f4ee]">
