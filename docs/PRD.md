@@ -26,10 +26,9 @@ Between the two, three things go wrong on every payout run:
    has to claw money back from someone in another country, which rarely works.
 2. **Paying the wrong account.** Bank details are wrong (name order, bank
    code, closed account) or a scammer emails "please pay my new account".
-   - Problems with beneficiary name and address details are the most common
-     cause of cross-border payment failure (21%), and each rejected or repaired
-     payment costs about US$12.10 (LexisNexis Risk Solutions, *True Impact of
-     Failed Payments*, 2023).
+   - Failed payments cost about US$118.5B in fees, labour and lost business
+     in 2020, and inaccurate beneficiary details caused about a third of
+     failures (LexisNexis Risk Solutions, July 2021).
    - Business email compromise caused about US$2.8B of reported losses in
      2024 (FBI IC3, via Nacha, April 2025).
 3. **Paying twice.** A transfer request times out, someone retries, the seller
